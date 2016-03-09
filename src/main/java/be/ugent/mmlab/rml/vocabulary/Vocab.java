@@ -22,6 +22,8 @@ public class Vocab {
     public static String RDFS_NAMESPACE = "http://www.w3.org/2000/01/rdf-schema#";
     public static String XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#";
     public static String EX_NAMESPACE = "http://example.com/ns#"; // By convention
+    
+	public static String RRF_NAMESPACE = "http://kdeg.scss.tcd.ie/ns/rrf#";
 
     public static QLTerm getQLTerms(String stringValue) {
         for (QLTerm term : QLTerm.values()){
@@ -31,6 +33,24 @@ public class Vocab {
         }
         return null;
     }
+    
+    public enum RRFTerm {
+		FUNCTION_CALL("functionCall"),
+		FUNCTION_NAME("functionName"),
+		FUNCTION_BODY("functionBody"),
+		PARAMETER_BINDINGS("parameterBindings"), 
+		FUNCTION("function");
+		
+		private String displayName;
+		
+		private RRFTerm(String displayName) {
+			this.displayName = displayName;
+		}
+	
+		public String toString() {
+			return displayName;
+		}
+	}
 
     public enum RMLTerm {
 

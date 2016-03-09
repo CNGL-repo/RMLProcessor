@@ -28,6 +28,8 @@
 package be.ugent.mmlab.rml.model;
 
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
+import function.FunctionCall;
+
 import java.util.HashSet;
 
 import net.antidot.semantic.rdf.model.tools.RDFDataValidator;
@@ -45,10 +47,10 @@ public final class StdObjectMap extends AbstractTermMap implements TermMap, Obje
 	public StdObjectMap(PredicateObjectMap predicateObjectMap,
 			Value constantValue, URI dataType, String languageTag,
 			String stringTemplate, URI termType, String inverseExpression,
-			ReferenceIdentifier referenceValue) throws R2RMLDataError,
+			ReferenceIdentifier referenceValue, FunctionCall functionCall) throws R2RMLDataError,
 			InvalidR2RMLStructureException, InvalidR2RMLSyntaxException {
 		super(constantValue, dataType, languageTag, stringTemplate, termType,
-				inverseExpression, referenceValue);
+				inverseExpression, referenceValue, functionCall);
 		setPredicateObjectMap(predicateObjectMap);
 	}
 

@@ -28,12 +28,14 @@
  ****************************************************************************/
 package be.ugent.mmlab.rml.model;
 
-import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
 import java.util.Set;
 
-import net.antidot.semantic.xmls.xsd.XSDLexicalTransformation;
 import org.openrdf.model.URI;
 import org.openrdf.model.Value;
+
+import be.ugent.mmlab.rml.model.reference.ReferenceIdentifier;
+import function.FunctionCall;
+import net.antidot.semantic.xmls.xsd.XSDLexicalTransformation;
 
 public interface TermMap {
 
@@ -55,7 +57,8 @@ public interface TermMap {
 		TEMPLATE_VALUED,
 		//  In db2triples and contrary to the R2RML norm, we accepts
 		// auto-assignments of blank nodes.
-		NO_VALUE_FOR_BNODE
+		NO_VALUE_FOR_BNODE, 
+		FUNCTION_CALL_VALUED
 	}
         
         public TriplesMap getOwnTriplesMap();
@@ -144,6 +147,8 @@ public interface TermMap {
 	 * An inverse expression MUST satisfy some conditions. (see ref.)
 	 */
 	public String getInverseExpression();
+
+	public FunctionCall getFunctionCall();
 
         
         /*

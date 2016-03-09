@@ -1,5 +1,32 @@
 package be.ugent.mmlab.rml.processor;
 
+import static be.ugent.mmlab.rml.model.TermType.BLANK_NODE;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import javax.script.ScriptException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openrdf.model.Resource;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.impl.BNodeImpl;
+import org.openrdf.model.impl.LiteralImpl;
+import org.openrdf.model.impl.URIImpl;
+import org.openrdf.model.vocabulary.RDF;
+
 import be.ugent.mmlab.rml.core.ConditionalJoinRMLPerformer;
 import be.ugent.mmlab.rml.core.JoinRMLPerformer;
 import be.ugent.mmlab.rml.core.RMLEngine;
@@ -14,37 +41,16 @@ import be.ugent.mmlab.rml.model.PredicateObjectMap;
 import be.ugent.mmlab.rml.model.ReferencingObjectMap;
 import be.ugent.mmlab.rml.model.SubjectMap;
 import be.ugent.mmlab.rml.model.TermMap;
-import static be.ugent.mmlab.rml.model.TermType.BLANK_NODE;
-import static be.ugent.mmlab.rml.model.TermType.IRI;
 import be.ugent.mmlab.rml.model.TriplesMap;
 import be.ugent.mmlab.rml.model.reference.ReferenceIdentifierImpl;
 import be.ugent.mmlab.rml.processor.concrete.ConcreteRMLProcessorFactory;
 import be.ugent.mmlab.rml.vocabulary.Vocab.QLTerm;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import function.JSEnv;
 import net.antidot.semantic.rdf.model.impl.sesame.SesameDataSet;
 import net.antidot.semantic.rdf.rdb2rdf.r2rml.core.R2RMLEngine;
-import net.antidot.semantic.rdf.rdb2rdf.r2rml.tools.R2RMLToolkit;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openrdf.model.Resource;
-import org.openrdf.model.URI;
-import org.openrdf.model.Value;
-import org.openrdf.model.impl.BNodeImpl;
-import org.openrdf.model.impl.LiteralImpl;
-import org.openrdf.model.impl.URIImpl;
-import org.openrdf.model.vocabulary.RDF;
-import java.util.regex.Pattern;
+import net.antidot.semantic.rdf.rdb2rdf.r2rml.exception.R2RMLDataError;
 import net.antidot.semantic.rdf.rdb2rdf.r2rml.model.TermType;
+import net.antidot.semantic.rdf.rdb2rdf.r2rml.tools.R2RMLToolkit;
 
 /**
  * This class contains all generic functionality for executing an iteration and
@@ -162,6 +168,31 @@ public abstract class AbstractRMLProcessor implements RMLProcessor {
                 //Extract the value directly from the mapping
                 value.add(map.getConstantValue().stringValue().trim());
                 return value;
+                
+            case FUNCTION_CALL_VALUED:
+            	List<String> evaluatedparams = new ArrayList<String>();
+    			for(ObjectMap om : map.getFunctionCall().getParameters()) {
+    				List<Value> evaluatedparam = processObjectMap(om, node); //om.getValue(dbValues, dbTypes);
+    				// TODO: many values, choose first one...
+    				evaluatedparams.add(evaluatedparam.get(0).stringValue());
+    			}			
+    			
+    			String result = null;
+    			Object[] parameters = evaluatedparams.toArray(new String[] {});
+    			try {
+    				result = JSEnv.invoke(map.getFunctionCall().getFunctionName(), parameters);
+    			} catch (NoSuchMethodException e) {
+    				// TODO No error handling at this point, die!
+    				System.err.println(e.getMessage());
+    				System.exit(-1);
+    			} catch (ScriptException e) {
+    				// TODO No error handling at this point, die!
+    				System.err.println(e.getMessage());
+    				System.exit(-1);
+    			}
+    			
+    			value.add(result);
+    			return value;
 
             case TEMPLATE_VALUED:
                 //Resolve the template
