@@ -13,13 +13,12 @@
 
 <#Data>
     rml:logicalSource [
-	rml:source "example/data.csv";
+	rml:source "functions-example/data.csv";
         rml:referenceFormulation ql:CSV
     ];
     
     rr:subjectMap [
-	 rr:template "http://airport.example.com/{id}";
-	 rr:class transit:Stop 
+	 rr:template "http://example.com/{id}";
     ];
     
     rr:predicateObjectMap [
